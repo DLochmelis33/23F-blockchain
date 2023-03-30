@@ -1,4 +1,5 @@
 import java.util.Random
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -33,6 +34,7 @@ class SchnorrSignerTest {
     }
 
     @Test
+    @Ignore
     // runs for around 3-4 minutes on my machine
     fun testValidStress() {
         val rnd = Random(7)
