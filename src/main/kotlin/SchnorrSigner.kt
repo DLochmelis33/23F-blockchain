@@ -1,11 +1,12 @@
 import java.math.BigInteger
+import java.security.MessageDigest
 import java.util.*
 
 class SchnorrSigner(
     approxBitLengthP: Int = 2000,
     bitLengthQ: Int = 200,
-    private val rnd: Random,
-    private val hash: (ByteArray) -> BigInteger
+    private val rnd: Random = Random(),
+    private val hash: (ByteArray) -> BigInteger = ::sha256
 ) : Signer<SchnorrSigner.PublicKey, SchnorrSigner.PrivateKey, SchnorrSigner.Signature> {
 
     data class PrivateKey(internal val x: BigInteger)
@@ -50,16 +51,18 @@ class SchnorrSigner(
         val (x) = privateKey
         val k = randomGroupElement()
         val r = g.groupPow(k)
-        val e = hash(r.toByteArray() + data).mod(p) // can be 0
-        val s = k - x * e // can be 0
+        val e = hash(r.toByteArray() + data).mod(q) // DIFFERENT GROUP
+        val s = (k - x * e).mod(q) // DIFFERENT GROUP
         return Signature(s, e)
     }
 
     override fun verify(data: ByteArray, publicKey: PublicKey, signature: Signature): Boolean {
         val (y) = publicKey
         val (s, e) = signature
-        val rv = g.groupPow(s) * y.groupPow(e)
-        val ev = hash(rv.toByteArray() + data) // can be 0
+        val rv = (g.groupPow(s) * y.groupPow(e)).mod(p)
+        val ev = hash(rv.toByteArray() + data).mod(q) // DIFFERENT GROUP
         return ev == e
     }
 }
+
+fun sha256(data: ByteArray): BigInteger = MessageDigest.getInstance("SHA-256").digest(data).let { BigInteger(it) }
