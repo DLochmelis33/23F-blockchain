@@ -13,33 +13,35 @@ class SchnorrSignerTest {
 
     @Test
     fun testValid() {
-        val signer = SchnorrSigner(256, 32)
+        val signer = SchnorrSigner
+        val rnd = Random(123)
         val data = "Hello World!".encodeToByteArray()
-        val (publicKey, privateKey) = signer.generateKeys()
-        val signature = signer.sign(data, privateKey)
+        val (publicKey, privateKey) = signer.generateKeys(300, rnd)
+        val signature = signer.sign(data, privateKey, rnd)
         assertTrue { signer.verify(data, publicKey, signature) }
     }
 
     @Test
     fun testInvalid() {
-        val signer = SchnorrSigner(256, 32)
+        val signer = SchnorrSigner
+        val rnd = Random(321)
         val data = "Goodbye World!".encodeToByteArray()
-        val (_, privateKey1) = signer.generateKeys()
-        val (publicKey2, _) = signer.generateKeys()
-        val signature1 = signer.sign(data, privateKey1)
+        val (_, privateKey1) = signer.generateKeys(300, rnd)
+        val (publicKey2, _) = signer.generateKeys(300, rnd)
+        val signature1 = signer.sign(data, privateKey1, rnd)
         assertFalse { signer.verify(data, publicKey2, signature1) }
     }
 
-    // this test ran for ~2.5 minutes for 10 iterations
     @Test
+    // runs for around 3-4 minutes on my machine
     fun testValidStress() {
         val rnd = Random(7)
-        repeat(10) {
-            val signer = SchnorrSigner(rnd = rnd)
+        repeat(100) {
+            val signer = SchnorrSigner
             val data = ByteArray(100).also { rnd.nextBytes(it) }
             signer.run {
-                val (pub, priv) = generateKeys()
-                val s = sign(data, priv)
+                val (pub, priv) = generateKeys(1000, rnd)
+                val s = sign(data, priv, rnd)
                 assertTrue { verify(data, pub, s) }
             }
             println("done #${it + 1}")
