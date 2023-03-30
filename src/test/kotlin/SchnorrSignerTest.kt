@@ -1,15 +1,17 @@
 import java.util.Random
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class SchnorrSignerTest {
 
     @Test
     fun testSha256() {
-        assertTrue { sha256("sheesh".encodeToByteArray()) == sha256(("she" + "esh").encodeToByteArray()) }
-        assertFalse { sha256("one".encodeToByteArray()) == sha256("two".encodeToByteArray()) }
+        assertEquals(sha256("sheesh".encodeToByteArray()), sha256(("she" + "esh").encodeToByteArray()))
+        assertNotEquals(sha256("one".encodeToByteArray()), sha256("two".encodeToByteArray()))
     }
 
     @Test

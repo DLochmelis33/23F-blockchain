@@ -20,4 +20,5 @@ gradlew run --args="verify -i README.md -k public.key -s signature"
 ```
 
 If nothing goes wrong, the last command should print "OK". 
-ha
+
+Currently, keys are being serialized as json files. This is far from optimal (especially serializing byte arrays as json arrays of plaintext numbers), but efficient serialization is outside the scope of this task.   
